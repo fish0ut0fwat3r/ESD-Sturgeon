@@ -66,7 +66,7 @@ rootdir = workdir + 'sex_determination/'
 data_dir_train = pathlib.Path(rootdir + 'Training/')
 #data_dir_validation = pathlib.Path(rootdir + 'large/Validation/')
 data_dir_test = pathlib.Path(rootdir + 'Test/')
-checkpoint_filepath = workdir + 'tfmodelcheckpoints/mbmodel'+ modelnum + '_weights.{epoch:02d}-vca-{val_categorical_accuracy:.4f}-ca-{categorical_accuracy:.4f}.hdf5'
+checkpoint_filepath = workdir + 'tfmodelcheckpoints/mbmodel'+ modelnum + '.{epoch:02d}-vca-{val_categorical_accuracy:.4f}-ca-{categorical_accuracy:.4f}.weights.h5'
 #checkpoint_filepath = workdir + 'gordon/tfmodelcheckpoints/'+ modelnum + '_weights.{epoch:02d}-vba-{val_binary_accuracy:.4f}-ba-{binary_accuracy:.4f}.hdf5'
 
 # Predefined image dimensions
@@ -94,8 +94,8 @@ test_ds = tf.keras.preprocessing.image_dataset_from_directory(
 #print(val_ds)
 
 #formating
-
-normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./255)
+normalization_layer = tf.keras.layers.Rescaling(1./255)
+#normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./255)
 normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
 image_batch, labels_batch = next(iter(normalized_ds))
 
@@ -143,7 +143,7 @@ num_classes = 2 #len(class_names)
 
 model = tf.keras.Sequential([
   #tf.keras.layers.Resizing(img_height, img_width),
-  tf.keras.layers.Rescaling(1./255, input_shape=(img_height, img_width, 3)),
+  #tf.keras.layers.Rescaling(1./255, input_shape=(img_height, img_width, 3)),
   tf.keras.layers.Conv2D(16, 3, activation='relu'),
   tf.keras.layers.MaxPooling2D(),
   tf.keras.layers.Conv2D(32, 3, activation='relu'),

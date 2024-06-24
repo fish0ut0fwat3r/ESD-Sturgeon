@@ -58,7 +58,7 @@ rootdir = workdir + 'sex_determination/'
 data_dir_train = pathlib.Path(rootdir + 'Training/')
 #data_dir_validation = pathlib.Path(rootdir + 'large/Validation/')
 data_dir_test = pathlib.Path(rootdir + 'Test/')
-checkpoint_filepath = workdir + 'tfmodelcheckpoints/mbmodel'+ modelnum + '_weights.{epoch:02d}-vca-{val_categorical_accuracy:.4f}-ca-{categorical_accuracy:.4f}.hdf5'
+checkpoint_filepath = workdir + 'tfmodelcheckpoints/mbmodel'+ modelnum + '.{epoch:02d}-vca-{val_categorical_accuracy:.4f}-ca-{categorical_accuracy:.4f}.weights.h5'
 #checkpoint_filepath = workdir + 'gordon/tfmodelcheckpoints/'+ modelnum + '_weights.{epoch:02d}-vba-{val_binary_accuracy:.4f}-ba-{binary_accuracy:.4f}.hdf5'
 
 # Predefined image dimensions
@@ -83,7 +83,7 @@ test_ds = tf.keras.preprocessing.image_dataset_from_directory(
   batch_size=batch_size)
 #print(val_ds)
 
-normalization_layer = tf.keras.layers.experimental.preprocessing.Rescaling(1./255)
+normalization_layer = tf.keras.layers.Rescaling(1./255)
 normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
 image_batch, labels_batch = next(iter(normalized_ds))
 
@@ -93,7 +93,7 @@ train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
 # VGG16 model
 num_classes = 2
 model = tf.keras.Sequential()
-model.add(tf.keras.layers.experimental.preprocessing.Rescaling(1./255))
+#model.add(tf.keras.layers.experimental.preprocessing.Rescaling(1./255))
 
 model.add(tf.keras.layers.Conv2D(64, 3, activation=tf.keras.layers.LeakyReLU(alpha=0.3)))
 model.add(tf.keras.layers.MaxPooling2D())
@@ -131,23 +131,24 @@ model.compile(
     #loss=tf.keras.losses.CategoricalCrossCrossentropy(),
     #metrics=['accuracy'])
 
+
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
     filepath=checkpoint_filepath,
     save_weights_only=True,
     verbose=1,
     monitor=mymonitor,
     mode='max',
-    save_best_only=False,
+    save_best_only=True,
     initial_value_threshold=0.70)
 
 model_earlystop = tf.keras.callbacks.EarlyStopping(
     monitor=mymonitor,
     min_delta=0,
-    patience=100,
+    patience=200,
     verbose=0,
     mode='auto',
     baseline=None,
-    restore_best_weights=False,
+    restore_best_weights=True,
     start_from_epoch=200
 )
 
